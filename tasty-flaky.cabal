@@ -1,6 +1,6 @@
 cabal-version:      3.4
 name:               tasty-flaky
-version:            0.1.0.0
+version:            0.1.1.0
 synopsis:           Handle flaky Tasty-based tests
 description:        Handle flaky Tasty-based tests, with configuration retry policies.
 homepage:           https://github.com/LaurentRDC/tasty-flaky
@@ -11,8 +11,9 @@ maintainer:         Laurent René de Cotret
 copyright:          (c) Laurent René de Cotret
 category:           Testing
 build-type:         Simple
-tested-with:        GHC ==9.10.1
-                     || ==9.8.2
+tested-with:        GHC ==9.12.1
+                     || ==9.10.1
+                     || ==9.8.4
                      || ==9.6.6
                      || ==9.4.8
                      || ==9.2.8
