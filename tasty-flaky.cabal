@@ -1,6 +1,6 @@
 cabal-version:      3.4
 name:               tasty-flaky
-version:            0.1.1.0
+version:            0.1.2.0
 synopsis:           Handle flaky Tasty-based tests
 description:        Handle flaky Tasty-based tests, with configuration retry policies.
 homepage:           https://github.com/LaurentRDC/tasty-flaky

@@ -11,10 +11,11 @@
 -- Maintainer  :  Laurent René de Cotret
 -- Portability :  portable
 --
--- This module defines a single function, 'flakyTest', to declare a test
+-- This module defines a function, 'flakyTest', to declare a test
 -- which intermittently fails. Flaky tests can be retries using retry policies
 -- provided by the "Control.Retry" module (from the @retry@ package).
 --
+-- To dynamically retry based on the result of a test, see 'flakyTestWithRetryAction' instead.
 --
 -- For example, you can retry test cases from @tasty-hunit@ like so:
 --
@@ -29,7 +30,7 @@
 -- if a failure occurs.
 --
 module Test.Tasty.Flaky (
-    -- * Test wrapper
+    -- * Test wrappers
     flakyTest
     , flakyTestWithRetryAction
 
@@ -62,7 +63,8 @@ import Test.Tasty.Options ( OptionDescription, OptionSet )
 data FlakyTest t
     = MkFlakyTest (RetryStatus -> Result -> IO RetryAction) (RetryPolicyM IO) t
 
--- | Modify the delay of a RetryPolicy.
+
+-- | Modify the delay of a RetryPolicy (in microseconds).
 -- Does not change whether or not a retry is performed.
 modifyRetryPolicyDelay :: Functor m => (Int -> Int) -> RetryPolicyM m -> RetryPolicyM m
 modifyRetryPolicyDelay f (RetryPolicyM p) = RetryPolicyM $ \stat -> fmap f <$> p stat
@@ -82,13 +84,37 @@ modifyRetryPolicyDelay f (RetryPolicyM p) = RetryPolicyM $ \stat -> fmap f <$> p
 -- myFlakyTest = 'flakyTest' ('limitRetries' 5 <> 'constantDelay' 1000) $ testCase "some test case" $ do ...
 -- @
 --
+-- To dynamically retry based on the result of a test, see 'flakyTestWithRetryAction' instead.
 flakyTest :: (RetryPolicyM IO) -> TestTree -> TestTree
 flakyTest = flakyTestWithRetryAction (\_ _ -> pure ConsultPolicy)
+
 
 -- | Mark any test as flaky. Like 'flakyTest', but allows for overriding retry policies
 -- based on test results. Also see 'RetryAction'.
 --
-flakyTestWithRetryAction :: (RetryStatus -> Result -> IO RetryAction) -> (RetryPolicyM IO) -> TestTree -> TestTree
+-- For example, if you only want to retry a test if the error message contains @"some error message"@:
+--
+-- @
+-- import Test.Tasty.HUnit ( testCase ) -- from tasty-hunit
+-- import Data.List ( isInfixOf )
+--
+-- myFlakyTest :: TestTree
+-- myFlakyTest 
+--     = 'flakyTestWithRetryAction' 
+--              retryAction 
+--              ('constantDelay' 1000)
+--                  $ testCase "some test case" $ do ...
+--     where
+--         retryAction :: 'RetryStatus' -> 'Result' -> IO 'RetryAction'
+--         retryAction _ result
+--             | "some error message" ``isInfixOf`` show result = pure `ConsultPolicy`
+--             | otherwise = pure `DontRetry`
+-- @
+--
+-- @since 0.1.2.0
+flakyTestWithRetryAction :: (RetryStatus -> Result -> IO RetryAction)
+                         -> (RetryPolicyM IO) 
+                         -> TestTree -> TestTree
 flakyTestWithRetryAction retryAction policy = \case
     (SingleTest name t)           -> SingleTest name (MkFlakyTest retryAction policy t)
     (TestGroup name subtree)      -> TestGroup name (map go subtree)

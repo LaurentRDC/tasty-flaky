@@ -1,8 +1,8 @@
 # Revision history for tasty-flaky
 
-## Unreleased
+## 0.1.2.0 --  2025-02-10
 
-* Add `flakyTestWithRetryAction`. Retry logic can now be based on test results.
+* Add `flakyTestWithRetryAction`. Retry logic can now be based on test results (#1).
 
 ## 0.1.1.0 -- 2024-12-19
 
