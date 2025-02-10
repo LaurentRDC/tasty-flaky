@@ -4,7 +4,7 @@ This provides [`tasty`](https://hackage.haskell.org/package/tasty) integration f
 
 ## Example usage
 
-This package provides a single function, `flakyTest`, which can attach retrying logic to *any* test.
+This package provides functions, like `flakyTest`, which can attach retrying logic to *any* test.
 For example, you can retry test cases from [`tasty-hunit`](https://hackage.haskell.org/package/tasty-hunit) like so:
 
 ```haskell
